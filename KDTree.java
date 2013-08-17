@@ -105,6 +105,8 @@ public class KDTree < T extends Comparable<? super T>>  {
         GenericPoint median_point = list.get(mediaIndex-1);
         T mid_value = (T) median_point.getCoord(axis);
 
+        ((KDRect) node).setHyperPlane(axis,mid_value);
+
         if (list.size()>1) {
 
             List<GenericPoint> less = list.subList(0, mediaIndex);
@@ -121,7 +123,7 @@ public class KDTree < T extends Comparable<? super T>>  {
                     node.lesser = createNode(less, k, depth+1, currRoot);
                     node.lesser.parent = node;
 
-            }
+                }
             List<GenericPoint> more = list.subList(mediaIndex, list.size());
 
                 if (more.size()>1) {
@@ -158,7 +160,52 @@ public class KDTree < T extends Comparable<? super T>>  {
 
     }
 
+    /**
+     * Does the tree contain a point in a leaf.
+     *
+     * @param value T to locate in the tree.
+     * @return True if tree contains value.
+     */
+    public boolean contains( GenericPoint a_point) {
+        if (a_point==null) return false;
 
+        KDNode node = this.getNode(a_point);
+
+        return (node!=null);
+    }
+
+
+    public KDNode getNode( GenericPoint a_point ) {
+        if ( this.root==null || a_point==null) return null;
+
+        KDNode node = this.root;
+
+        while (true) {
+            if(node.getRL()){
+                if( ((KDLeaf)node ).equal(a_point) )
+                    return node;
+                else return null;
+            }
+            else{
+                if ( ((KDRect)node).FindNextDirect(a_point) < 0) {
+                //Greater
+                    if (node.greater==null) {
+                        return null;
+                    } else {
+                        node = node.greater;
+                    }
+                } else {
+                //Lesser
+                    if (node.lesser==null) {
+                        return null;
+                    } else {
+                        node = node.lesser;
+                    }
+                }
+            }
+        }
+//        return null;
+    }
     protected static class TreePrinter {
 
         public static < T extends Comparable<? super T>> String getString(KDTree<T> tree) {
@@ -172,7 +219,11 @@ public class KDTree < T extends Comparable<? super T>>  {
             if (node.parent!=null) {
                 String side = "left";
                 if (node.parent.greater!=null ) side = "right";
-                builder.append(prefix + (isTail ? "{---" : "$--- ") + "[" + side + "] " + "depth=" + node.depth  + "\n");
+                builder.append(prefix + (isTail ? "{---" : "$--- ") + "[" + side + "] " + "depth=" + node.depth );
+                if(node.getRL())
+                    builder.append("   "+ ((KDLeaf) node).point.toString() +  "\n" );
+                else
+                    builder.append("\n");
             } else {
                 builder.append(prefix + (isTail ? "{--- " : "$--- ") + "depth=" + node.depth +  "\n");
             }
@@ -214,6 +265,7 @@ public class KDTree < T extends Comparable<? super T>>  {
           int y = random.nextInt(100);
           list.add(new GenericPoint<Integer>(Integer.class, new Integer(x), new Integer(y)));
         }
+        list.add(new GenericPoint<Integer>(Integer.class, 5, 6));
         return list;
     }
 
@@ -227,6 +279,15 @@ public class KDTree < T extends Comparable<? super T>>  {
 
     KDTree myTree = new KDTree<Integer>(Integer.class, list,2);
 //    myTree.Traverse(myTree.root);
+
+    GenericPoint<Integer> GP = new GenericPoint(Integer.class, 5, 6);
+
+    boolean check = myTree.contains(GP);
+
+    if(check)
     System.out.println(myTree.toString());
+
+
     }
+
 }

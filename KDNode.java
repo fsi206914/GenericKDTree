@@ -33,6 +33,11 @@ public class KDNode implements Comparable<KDNode> {
         this.RectOrLeaf = RectOrLeaf;
     }
 
+    public boolean getRL() {
+
+        return RectOrLeaf;
+    }
+
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("k=").append(k);
@@ -44,5 +49,6 @@ public class KDNode implements Comparable<KDNode> {
     public int compareTo(KDNode o) {
         return 1;
     }
+
 
 }

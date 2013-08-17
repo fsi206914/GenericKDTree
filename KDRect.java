@@ -10,6 +10,21 @@ class KDRect< Coord extends Comparable<? super Coord>> extends KDNode {
     public int dim;
     private final Class nameDouble = Double.class;
     private final Class nameInt = Integer.class;
+    public hyperplane currHP;
+
+    public final class hyperplane{
+
+        int planeDim;
+        Coord value;
+
+        public hyperplane(int a_planeDim, Coord a_value)
+        {
+            planeDim = a_planeDim;
+            value = a_value;
+        }
+
+    }
+
 
     public KDRect(Class T, int ndims) {
         super();
@@ -28,11 +43,15 @@ class KDRect< Coord extends Comparable<? super Coord>> extends KDNode {
         }
     }
 
+    public void setHyperPlane( int a_planeDim, Coord a_value ) {
+        currHP = new hyperplane(a_planeDim, a_value);
+    }
+
     public void infiniteHRectInteger() {
 
         for (int i=0; i<dim; ++i) {
-            min.setCoord(i, -99999);
-            max.setCoord(i, 99999);
+            min.setCoord(i, Integer.MIN_VALUE);
+            max.setCoord(i, Integer.MAX_VALUE);
         }
     }
 
@@ -67,11 +86,29 @@ class KDRect< Coord extends Comparable<? super Coord>> extends KDNode {
             max.__coordinates[i] = Parent.max.__coordinates[i];
         }
         min.__coordinates[a_dim] = a_value;
+
     }
+
+    public int  FindNextDirect( GenericPoint a_point  ) {
+
+        Coord Midvalue = this.currHP.value;
+        int DimComp = this.currHP.planeDim;
+        int cmp = Midvalue.compareTo( (Coord) a_point.getCoord(DimComp));
+
+        if(cmp <0) return -1;
+        else return 1;
+
+    }
+
 
     public String toString() {
         return "A rectangle: " + min.toString() + "   " + max.toString() + "\n";
     }
+
+    public int compareTo(KDNode o) {
+        return 1;
+    }
+
 
     public static void main(String args[]){
 
